@@ -1,5 +1,7 @@
 import requests
 
+from helpers.database import queries
+from helpers.database.sqlite import Database
 from settings import AEMET_API_KEY
 
 
@@ -20,3 +22,11 @@ class AemetConnection:
         if response.status_code == 200:
             return response.json()
         raise AemetConnectionError("AEMET connection error when try to get towns")
+
+    def insert_towns(self, towns: list[dict[str, str]]):
+        database = Database()
+        database.execute(queries.CREATE_TOWNS_TABLE)
+        for town in towns:
+            town_id = town["id"]
+            town_name = town["nombre"]
+            database.execute(queries.INSERT_TOWN, (town_id, town_name))
